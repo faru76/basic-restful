@@ -25,9 +25,6 @@ let dbUsers = [
     },
 ]
 
-
-app.use(express.json()); //decode the json included in request
-
 function login(username, password){
     console.log("someone tried to login with", username, password)
     
@@ -66,16 +63,16 @@ function register(newusername, newpassword, newname, newemail){
     }
 }
 
+app.use(express.json()); //decode the json included in request
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
-
 
 app.post('/', (req, res) => {
     let data = req.body
     res.send('Post request ' + JSON.stringify(data))
 })
-
 
 app.post('/bye', (req, res) => {
     res.send('Bye Bye World!')
@@ -83,36 +80,13 @@ app.post('/bye', (req, res) => {
 
 app.post('/login',(req,res)=>{
     let data = req.body
-    res.send(
-        login(data.username, data.password)
-    )
+    res.send(login(data.username, data.password))
 })
 
 app.post('/register',(req,res)=>{
     let data = req.body
-    res.send(
-        register(data.username, data.password, data.name, data.email)
-    )
+    res.send(register(data.username, data.password, data.name, data.email))
 })
-
-
-//create a POST route for user to login
-// app.post('/login', (req,res)=>{
-//     //get username and password from the request body
-//     const {username, password} = req.body;
-
-//     //find the user in database
-//     const user = dbUsers.find(user=>user.username === username && user.password === password);
-
-//     //if user is found
-//     if(user){
-//         res.send(user);
-//     }
-//     else{
-//         //if user is not found
-//         res.send({error:"User not found"});
-//     }
-// })
 
 //start the server
 app.listen(port, () => {
