@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+const jwt = require('jsonwebtoken')
+
 let dbUsers = [
     {
         username: "faru",
@@ -63,6 +65,27 @@ function register(newusername, newpassword, newname, newemail){
     }
 }
 
+//to generate jsonwebtoken
+function generateToken(userProfile){
+    return jwt.sign({userProfile}, 'secret', { expiresIn: 60*60 })
+}
+
+//to verify jsonwebtoken
+function verifyToken(req, res, next){
+    let header = req.headers.authorization
+    console.log(header)
+
+    let token = header.split(' ')[1]
+    jwt.verify(token,'secret', function(err,decoded){
+        if(err){
+            res.send("Unauthorized access")
+        }
+        
+        req.user = decoded
+        next()
+    })
+}
+
 app.use(express.json()); //decode the json included in request
 
 app.get('/', (req, res) => {
@@ -78,9 +101,16 @@ app.post('/bye', (req, res) => {
     res.send('Bye Bye World!')
 }) //this will not work as anything typed in the address bar will use GET method.
 
+app.get('/token', verifyToken, (req, res) => {
+    // res.send(verifyToken(header))
+    console.log(req.user)
+    res.send('Token is verified!')
+  })
+
 app.post('/login',(req,res)=>{
     let data = req.body
-    res.send(login(data.username, data.password))
+    let user = login(data.username, data.password)
+    res.send(generateToken(user))
 })
 
 app.post('/register',(req,res)=>{
